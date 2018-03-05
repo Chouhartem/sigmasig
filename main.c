@@ -26,6 +26,7 @@
 #include <relic.h>
 #include <relic_bench.h>
 #include "sigmasig.h"
+#define NBENCH 100
 
 static void sig_eff_protocols(void)
 {
@@ -45,7 +46,7 @@ static void sig_eff_protocols(void)
   sep_keygen(pk, sk);
   bn_rand_mod(m, pk->p);
   sep_sign(sigma, sk, pk, m);
-  sep_sign_print(sigma);
+  //sep_sign_print(sigma);
 
   printf("%d\n",sep_verif(sigma, pk, m));
 
@@ -57,14 +58,15 @@ static void sig_eff_protocols(void)
 
 static void group_sig(void)
 {
-  gs_pp_t pp       = malloc(sizeof(struct gs_pp_t));
+  int i;
+  gs_pp_t pp            = malloc(sizeof(struct gs_pp_t));
   gs_sgm_t sgm;
-  gs_soa_t soa     = malloc(sizeof(struct gs_soa_t));
-  gs_cert_t cert   = malloc(sizeof(struct gs_cert_t));
-  gs_sec_t sec;
-  gs_trans_t trans = malloc(sizeof(struct gs_trans_t));
-  msg_t msg        = malloc(sizeof(struct msg_t));
-  gs_sig_t sig     = malloc(sizeof(struct gs_sig_t));
+  gs_soa_t soa          = malloc(sizeof(struct gs_soa_t));
+  gs_cert_t* cert       = malloc(NBENCH * sizeof *cert);
+  gs_sec_t sec[NBENCH];
+  gs_trans_t* trans     = malloc(NBENCH * sizeof *trans);
+  msg_t msg             = malloc(sizeof(struct msg_t));
+  gs_sig_t* sig          = malloc(NBENCH * sizeof *sig);
 
   gs_pp_init(pp);
   bn_null(sgm); bn_new(sgm);
@@ -72,28 +74,39 @@ static void group_sig(void)
 
   BENCH_ONCE("gs_keygen", gs_keygen(pp, sgm, soa));
 
-  gs_cert_init (cert);
-  bn_null(sec); bn_new(sec);
-  bn_zero(sec);
-  gs_trans_init(trans);
-  //gs_join(cert, sec, trans, pp, sgm);
-  BENCH_ONCE("gs_join", gs_join(cert, sec, trans, pp, sgm));
+  for (i = 0; i < NBENCH; ++i) {
+    cert[i] = malloc(sizeof *cert[i]);
+    gs_cert_init (cert[i]);
+    bn_null(sec[i]); bn_new(sec[i]);
+    bn_zero(sec[i]);
+    trans[i] = malloc(sizeof *trans[i]);
+    gs_trans_init(trans[i]);
+  }
+  BENCH_SMALL("gs_join", gs_join(cert[i], sec[i], trans[i], pp, sgm));
 
   msg_init_set(msg, "Bonjour");
-  gs_sig_init(sig);
-  BENCH_SMALL("gs_sign", gs_sign(sig, pp, sec, cert, msg));
+  for (i = 0; i < NBENCH; ++i) {
+    sig[i] = malloc(sizeof *sig[i]);
+    gs_sig_init(sig[i]);
+  }
+  BENCH_SMALL("gs_sign", gs_sign(sig[i], pp, sec[i], cert[i], msg));
 
-  BENCH_SMALL("gs_verif", gs_verif(pp, msg, sig));
+  BENCH_SMALL("gs_verif", gs_verif(pp, msg, sig[i]));
 
   /* Close */
   gs_pp_free(pp);
   bn_free(sgm);
   gs_soa_free(soa);
-  gs_cert_free(cert);
-  bn_free(sec);
-  gs_trans_free(trans);
+  for(i = 0; i < NBENCH; ++i) {
+    gs_cert_free(cert[i]);
+    bn_free(sec[i]);
+    gs_trans_free(trans[i]);
+    gs_sig_free(sig[i]);
+  }
+  free(cert);
+  free(trans);
+  free(sig);
   msg_free(msg);
-  gs_sig_free(sig);
 }
 
 int main (void)

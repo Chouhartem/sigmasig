@@ -48,7 +48,7 @@ static void sig_eff_protocols(void)
   sep_sign(sigma, sk, pk, m);
   //sep_sign_print(sigma);
 
-  printf("%d\n",sep_verif(sigma, pk, m));
+  //printf("%d\n",sep_verif(sigma, pk, m));
 
   sep_pk_free(pk);
   sep_sign_free(sigma);

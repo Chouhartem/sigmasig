@@ -97,7 +97,7 @@ void crs_print(const crs_t t)
 
 void sep_pk_init(sep_pk_t t)
 {
-  t->crs = malloc(sizeof(struct crs_t));
+  t->crs = malloc(sizeof *(t->crs));
   crs_init(t->crs);
 
   g1_null(t->g);
@@ -367,7 +367,7 @@ int sep_verif(const sep_sign_t sig, const sep_pk_t pk, const bn_t m)
 
 void gs_pp_init(gs_pp_t t)
 {
-  t->pk_s = malloc(sizeof(struct sep_pk_t));
+  t->pk_s = malloc(sizeof *(t->pk_s));
   sep_pk_init(t->pk_s);
 
   g1_null(t->Xz);
@@ -458,7 +458,7 @@ void msg_init(msg_t t, const size_t n)
 {
   size_t i;
   t->len = n;
-  t->msg = malloc(n * sizeof(uint8_t));
+  t->msg = malloc(n * sizeof(t->msg));
   for (i = 0; i < n; ++i)
     t->msg[i] = 0;
 }
@@ -489,7 +489,7 @@ void gs_cert_init(gs_cert_t t)
   bn_new (t->i);
   g1_null(t->Vid);
   g1_new (t->Vid);
-  t->sig = malloc(sizeof(struct sep_sign_t));
+  t->sig = malloc(sizeof *(t->sig));
   sep_sign_init(t->sig);
 }
 
@@ -646,10 +646,10 @@ int cdm_run(cdm_trans_t pi, bn_t q, g1_t X, g1_t g, bn_t a)
 
 void gs_trans_init(gs_trans_t t)
 {
-  t->trans = malloc(sizeof(struct cdm_trans_t));
+  t->trans = malloc(sizeof *(t->trans));
   assert(t->trans != NULL);
   cdm_trans_init(t->trans);
-  t->cert = malloc(sizeof(struct gs_cert_t));
+  t->cert = malloc(sizeof *(t->cert));
   assert(t->cert != NULL);
   gs_cert_init(t->cert);
 
@@ -725,7 +725,7 @@ int gs_sign(gs_sig_t sig, const gs_pp_t pp, const gs_sec_t sec, const gs_cert_t 
   bn_null(theta);
   gs_cert_t sigma_rand;
   TRY {
-    sigma_rand = malloc(sizeof(struct gs_cert_t));
+    sigma_rand = malloc(sizeof *sigma_rand);
     assert      (sigma_rand != 0);
     gs_cert_init(sigma_rand);
     g1_new(tmp1);
@@ -802,7 +802,7 @@ int gs_sign(gs_sig_t sig, const gs_pp_t pp, const gs_sec_t sec, const gs_cert_t 
     uint8_t* msg;
     unsigned int i;
     unsigned int hash_len = m->len + g1_size_bin(R1, 1) * 10 + gt_size_bin(R4, 1);
-    msg = malloc(hash_len * sizeof(uint8_t));
+    msg = malloc(hash_len * sizeof *msg);
     assert(msg != NULL);
     for(i = 0; i < m->len; ++i)
       msg[i] = m->msg[i];
@@ -955,7 +955,7 @@ int gs_join(gs_cert_t cert, gs_sec_t sec, gs_trans_t trans, const gs_pp_t pp, co
   bn_null(ID);
   bn_t s;
   bn_null(s);
-  gs_id_exc_t initialize = malloc(sizeof(struct gs_id_exc_t));
+  gs_id_exc_t initialize = malloc(sizeof *initialize);
   /* For equality check */
   gt_t lhs, rhs;
   gt_null(lhs); gt_null(rhs);

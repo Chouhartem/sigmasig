@@ -59,14 +59,14 @@ static void sig_eff_protocols(void)
 static void group_sig(void)
 {
   int i;
-  gs_pp_t pp            = malloc(sizeof(struct gs_pp_t));
+  gs_pp_t pp            = malloc(sizeof *pp);
   gs_sgm_t sgm;
-  gs_soa_t soa          = malloc(sizeof(struct gs_soa_t));
+  gs_soa_t soa          = malloc(sizeof *soa);
   gs_cert_t* cert       = malloc(NBENCH * sizeof *cert);
   gs_sec_t sec[NBENCH];
   gs_trans_t* trans     = malloc(NBENCH * sizeof *trans);
-  msg_t msg             = malloc(sizeof(struct msg_t));
-  gs_sig_t* sig          = malloc(NBENCH * sizeof *sig);
+  msg_t msg             = malloc(sizeof *msg);
+  gs_sig_t* sig         = malloc(NBENCH * sizeof *sig);
 
   gs_pp_init(pp);
   bn_null(sgm); bn_new(sgm);

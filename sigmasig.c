@@ -1022,3 +1022,45 @@ int gs_join(gs_cert_t cert, gs_sec_t sec, gs_trans_t trans, const gs_pp_t pp, co
   }
   return result;
 }
+
+int gs_open(g1_t ID, const gs_soa_t soa, const gs_sig_t sig)
+{
+  int result = 0;
+  g1_t sigma1, pi, Vid;
+  g1_t tmp1;
+  g1_null(sigma1); g1_null(pi); g1_null(Vid);
+  g1_null(tmp1);
+  TRY {
+    g1_new(tmp1);
+    /* σ₁ */
+    g1_new(sigma1);
+    g1_mul(sigma1, sig->C[1], soa->ys);
+    g1_mul(tmp1, sig->C[0], soa->xs);
+    g1_add(sigma1, tmp1, sigma1);
+    g1_neg(sigma1, sigma1);
+    g1_add(sigma1, sig->Cs, sigma1);
+    /* π */
+    g1_new(pi);
+    g1_mul(pi, sig->C[1], soa->yz);
+    g1_mul(tmp1, sig->C[0], soa->xz);
+    g1_add(pi, tmp1, pi);
+    g1_neg(pi, pi);
+    g1_add(pi, sig->Cz, pi);
+    /* Vid */
+    g1_new(Vid);
+    g1_mul(Vid, sig->C[1], soa->yid);
+    g1_mul(tmp1, sig->C[0], soa->xid);
+    g1_add(Vid, tmp1, Vid);
+    g1_neg(Vid, Vid);
+    g1_add(Vid, sig->Cid, Vid);
+
+    /* temporarily */
+    g1_copy(ID, Vid);
+  } CATCH_ANY {
+    result = STS_ERR;
+  } FINALLY {
+    g1_free(sigma1); g1_null(pi); g1_null(Vid);
+    g1_free(tmp1);
+  }
+  return result;
+}

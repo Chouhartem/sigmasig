@@ -162,5 +162,6 @@ int gs_keygen(gs_pp_t pp, gs_sgm_t sgm, gs_soa_t soa);
 int gs_sign(gs_sig_t sig, const gs_pp_t pp, const gs_sec_t sec, const gs_cert_t cert, const msg_t m);
 int gs_verif(const gs_pp_t pp, const msg_t m, const gs_sig_t sig);
 int gs_join(gs_cert_t cert, gs_sec_t sec, gs_trans_t trans, const gs_pp_t pp, const gs_sgm_t sgm);
+int gs_open(g1_t ID, const gs_soa_t soa, const gs_sig_t sig);
 
 #endif
